@@ -26,13 +26,34 @@ Commits made before `git-tunnel` was installed appear in a plain white
 
 ## Install
 
+The recommended way to install `git-tunnel` is with **pipx** or **uv** — both install it into an isolated environment and expose the `git-tunnel` command globally. This avoids the `externally-managed-environment` error you get with bare `pip` on Ubuntu 23.04+ and other modern Linux distros.
+
+**pipx** (recommended for most users):
+```bash
+pipx install git-tunnel
+```
+
+**uv** (if you already use uv):
+```bash
+uv tool install git-tunnel
+```
+
+**pip** (virtualenv or older systems only):
 ```bash
 pip install git-tunnel
 ```
 
-Or with `uv`:
+> On Ubuntu 23.04+, Debian 12+, and similar distros, using `pip install` system-wide will likely fail with an `externally-managed-environment` error. Use `pipx` or `uv tool install` instead.
+
+Don't have pipx? Install it first:
 ```bash
-uv tool install git-tunnel
+# Ubuntu / Debian
+sudo apt install pipx
+pipx ensurepath
+
+# macOS
+brew install pipx
+pipx ensurepath
 ```
 
 ---
