@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook — part of git-tunnel
+# Appends [device:X] tag to every commit using git config user.device
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip merge, squash, amend
+if [ "$COMMIT_SOURCE" = "merge" ] || \
+   [ "$COMMIT_SOURCE" = "squash" ] || \
+   [ "$COMMIT_SOURCE" = "commit" ]; then
+    exit 0
+fi
+
+DEVICE=$(git config --global user.device)
+
+if [ -z "$DEVICE" ]; then
+    echo "⚠  git-tunnel: user.device not set. Run: git-tunnel install"
+    exit 0
+fi
+
+# Don't double-tag
+if grep -qE "\[device:" "$COMMIT_MSG_FILE"; then
+    exit 0
+fi
+
+echo "" >> "$COMMIT_MSG_FILE"
+echo "[device:$DEVICE]" >> "$COMMIT_MSG_FILE"
