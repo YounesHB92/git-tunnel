@@ -58,9 +58,9 @@ pipx ensurepath
 
 ---
 
-## Setup (once per machine)
+## Install (once per machine)
 
-Run the interactive setup:
+Run the interactive install:
 ```bash
 git-tunnel install
 ```
@@ -81,7 +81,16 @@ you doing anything.
 
 Inside any git repo:
 ```bash
+# Compact view (messages truncated)
 git-tunnel
+
+# Full view (complete commit messages)
+git-tunnel --all
+```
+
+Not sure what's available? Run:
+```bash
+git-tunnel --help
 ```
 
 ---
