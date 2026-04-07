@@ -2,34 +2,33 @@ import subprocess
 import sys
 import re
 
-# ── ANSI styling ─────────────────────────────────────────────────────────────
-RESET  = '\033[0m'
-BOLD   = '\033[1m'
-DIM    = '\033[2m'
+# Colors etc.
+RESET = '\033[0m'
+BOLD = '\033[1m'
+DIM = '\033[2m'
 
 DEVICE_COLORS = [
-    '\033[96m',   # Cyan
-    '\033[93m',   # Yellow
-    '\033[92m',   # Green
-    '\033[95m',   # Magenta
-    '\033[91m',   # Red
-    '\033[94m',   # Blue
+    '\033[96m', # Cyan
+    '\033[93m', # Yellow
+    '\033[92m', # Green
+    '\033[95m', # Magenta/Purpulish
+    '\033[91m', # Red
+    '\033[94m', # Blue
 ]
 
-HASH_COLOR   = '\033[90m'
-TIME_COLOR   = '\033[37m'
+HASH_COLOR = '\033[90m'
+TIME_COLOR = '\033[37m'
 BORDER_COLOR = '\033[90m'
 HEADER_COLOR = '\033[1;37m'
 LEGACY_COLOR = '\033[37m'
 
-# ── Layout ────────────────────────────────────────────────────────────────────
-TIME_WIDTH   = 17
-MSG_WIDTH    = 36
-HASH_WIDTH   = 9
+# Layout
+TIME_WIDTH = 17
+MSG_WIDTH = 36
+HASH_WIDTH = 9
 
 DEVICE_TAG   = re.compile(r'\[device:(.+?)\]', re.IGNORECASE)
 LEGACY_LABEL = 'pre git-tunnel'
-
 
 def run_git_log():
     result = subprocess.run(
@@ -56,14 +55,14 @@ def parse_commits(raw):
         if len(parts) < 3:
             continue
 
-        hash_      = parts[0].strip()
-        author     = parts[1].strip()
-        time_      = parts[2].strip()
+        hash_ = parts[0].strip()
+        author = parts[1].strip()
+        time_ = parts[2].strip()
         first_line = parts[3].strip() if len(parts) > 3 else ''
-        rest       = '\n'.join(lines[1:]).strip()
-        body       = (first_line + '\n' + rest).strip()
+        rest = '\n'.join(lines[1:]).strip()
+        body = (first_line + '\n' + rest).strip()
 
-        match  = DEVICE_TAG.search(body)
+        match = DEVICE_TAG.search(body)
         device = match.group(1).strip() if match else None
 
         clean_msg = DEVICE_TAG.sub('', body).strip().splitlines()
@@ -84,18 +83,15 @@ def parse_commits(raw):
             unique.append(c)
     return unique
 
-
 def truncate(text, width):
     return text if len(text) <= width else text[:width - 1] + '…'
-
 
 def border(ch):
     return f"{BORDER_COLOR}{ch}{RESET}"
 
-
 def render(commits):
     has_legacy = any(c['device'] is None for c in commits)
-    devices    = [LEGACY_LABEL] if has_legacy else []
+    devices = [LEGACY_LABEL] if has_legacy else []
 
     for c in reversed(commits):
         if c['device'] and c['device'] not in devices:
@@ -108,9 +104,9 @@ def render(commits):
         idx = device_only.index(d) if d in device_only else 0
         return DEVICE_COLORS[idx % len(DEVICE_COLORS)]
 
-    col_w     = MSG_WIDTH + 2
+    col_w = MSG_WIDTH + 2
     row_total = TIME_WIDTH + (col_w + 3) * len(devices) + HASH_WIDTH + 4
-    bar       = BORDER_COLOR + '─' * row_total + RESET
+    bar = BORDER_COLOR + '─' * row_total + RESET
 
     print(f"\n{bar}")
     header  = f"  {HEADER_COLOR}{'TIME':<{TIME_WIDTH}}{RESET}"
@@ -124,11 +120,11 @@ def render(commits):
     print(bar)
 
     for c in commits:
-        device   = c['device'] if c['device'] else LEGACY_LABEL
+        device = c['device'] if c['device'] else LEGACY_LABEL
         time_str = truncate(c['time'], TIME_WIDTH)
-        color    = get_color(device)
+        color = get_color(device)
 
-        row  = f"  {TIME_COLOR}{time_str:<{TIME_WIDTH}}{RESET}"
+        row = f"  {TIME_COLOR}{time_str:<{TIME_WIDTH}}{RESET}"
         row += border('│')
 
         for d in devices:
@@ -151,7 +147,7 @@ def render(commits):
 
 
 def main():
-    raw     = run_git_log()
+    raw = run_git_log()
     commits = parse_commits(raw)
     if not commits:
         print("\n  No commits found.\n")

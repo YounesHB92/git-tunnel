@@ -3,7 +3,6 @@ import subprocess
 import shutil
 from pathlib import Path
 
-
 def install():
     """
     Interactive setup:
@@ -12,10 +11,10 @@ def install():
       - Sets git config --global core.hooksPath
       - Adds the shell function hint
     """
-    RESET  = '\033[0m'
-    BOLD   = '\033[1m'
-    CYAN   = '\033[96m'
-    GREEN  = '\033[92m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
     YELLOW = '\033[93m'
 
     def ok(t):   print(f"  \033[92m✓\033[0m {t}")
@@ -46,13 +45,13 @@ def install():
         subprocess.run(['git', 'config', '--global', 'user.device', device])
         ok(f"user.device set to '{device}'")
 
-    # ── Hook installation ─────────────────────────────────────────────────────
+    # Hook installation
     hooks_dir = Path.home() / '.git-tunnel-hooks'
     hooks_dir.mkdir(exist_ok=True)
 
     # Find the hook bundled with the package
-    pkg_hook = Path(__file__).parent / 'hooks' / 'prepare-commit-msg'
-    dest     = hooks_dir / 'prepare-commit-msg'
+    pkg_hook = Path(__file__).parent/'hooks'/'prepare-commit-msg'
+    dest = hooks_dir / 'prepare-commit-msg'
     shutil.copy(pkg_hook, dest)
     dest.chmod(0o755)
     ok(f"Hook installed → {dest}")
@@ -61,10 +60,15 @@ def install():
     subprocess.run(['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)])
     ok(f"core.hooksPath set to {hooks_dir}")
 
-    # ── Shell function hint ───────────────────────────────────────────────────
+    # Shell function hint
     print(f"\n{BOLD}Almost done!{RESET} Add this to your shell config (~/.zshrc or ~/.bashrc):\n")
     print(f"  {CYAN}function git-tunnel() {{ git-tunnel-run; }}{RESET}\n")
     print(f"Or just run:  {BOLD}git-tunnel-run{RESET}  directly.\n")
+
+
+
+
+
 
 
 def main():
