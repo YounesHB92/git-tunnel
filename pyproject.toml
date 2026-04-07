@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "git-tunnel"
-version = "0.1.1"
+version = "0.1.2"
 description = "Visualize git history as per-machine tunnels in your terminal"
 readme = "README.md"
 license = { text = "MIT" }
