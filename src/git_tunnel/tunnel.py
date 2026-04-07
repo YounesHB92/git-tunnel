@@ -89,7 +89,7 @@ def truncate(text, width):
 def border(ch):
     return f"{BORDER_COLOR}{ch}{RESET}"
 
-def render(commits):
+def render(commits, show_all=False):
     has_legacy = any(c['device'] is None for c in commits)
     devices = [LEGACY_LABEL] if has_legacy else []
 
@@ -104,7 +104,12 @@ def render(commits):
         idx = device_only.index(d) if d in device_only else 0
         return DEVICE_COLORS[idx % len(DEVICE_COLORS)]
 
-    col_w = MSG_WIDTH + 2
+    if show_all:
+        max_msg = max((len(c['message']) for c in commits), default=MSG_WIDTH)
+        col_w = max(max_msg, MSG_WIDTH) + 2
+    else:
+        col_w = MSG_WIDTH + 2
+
     row_total = TIME_WIDTH + (col_w + 3) * len(devices) + HASH_WIDTH + 4
     bar = BORDER_COLOR + '─' * row_total + RESET
 
@@ -129,7 +134,7 @@ def render(commits):
 
         for d in devices:
             if device == d:
-                msg = truncate(c['message'], col_w)
+                msg = c['message'] if show_all else truncate(c['message'], col_w)
                 row += f" {color}{msg:<{col_w}}{RESET} {border('│')}"
             else:
                 dots = DIM + '· ' * ((col_w + 1) // 2)
@@ -147,9 +152,10 @@ def render(commits):
 
 
 def main():
+    show_all = '--all' in sys.argv
     raw = run_git_log()
     commits = parse_commits(raw)
     if not commits:
         print("\n  No commits found.\n")
         return
-    render(commits)
+    render(commits, show_all=show_all)

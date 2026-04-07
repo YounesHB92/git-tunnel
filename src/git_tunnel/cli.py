@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess
 import shutil
 from pathlib import Path
@@ -60,20 +61,75 @@ def install():
     subprocess.run(['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)])
     ok(f"core.hooksPath set to {hooks_dir}")
 
-    # Shell function hint
-    print(f"\n{BOLD}Almost done!{RESET} Add this to your shell config (~/.zshrc or ~/.bashrc):\n")
-    print(f"  {CYAN}function git-tunnel() {{ git-tunnel-run; }}{RESET}\n")
-    print(f"Or just run:  {BOLD}git-tunnel-run{RESET}  directly.\n")
+    # Shell function — write it directly into the user's shell config
+    shell = os.environ.get('SHELL', '')
+    if 'zsh' in shell:
+        rc_file = Path.home() / '.zshrc'
+    else:
+        rc_file = Path.home() / '.bashrc'
+
+    marker = '# git-tunnel shell function'
+    fn_block = f'\n{marker}\nfunction git-tunnel() {{ git-tunnel-run "$@"; }}\n'
+
+    rc_text = rc_file.read_text() if rc_file.exists() else ''
+    if marker in rc_text:
+        ok(f"Shell function already present in {rc_file}")
+    else:
+        with rc_file.open('a') as f:
+            f.write(fn_block)
+        ok(f"Shell function added to {rc_file}")
+
+    print(f"\n{BOLD}All done!{RESET} Restart your shell or run:\n")
+    print(f"  {CYAN}source {rc_file}{RESET}\n")
 
 
 
 
 
+
+
+def help():
+    RESET  = '\033[0m'
+    BOLD   = '\033[1m'
+    CYAN   = '\033[96m'
+    YELLOW = '\033[93m'
+    DIM    = '\033[2m'
+
+    print(f"""
+{BOLD}git-tunnel{RESET} — visualize git history as per-machine tunnels in your terminal
+
+{BOLD}USAGE{RESET}
+  {CYAN}git-tunnel{RESET} {DIM}[flags]{RESET}
+  {CYAN}git-tunnel{RESET} {YELLOW}<command>{RESET}
+
+{BOLD}FLAGS{RESET}
+  {CYAN}--all{RESET}       Show full commit messages without truncation
+  {CYAN}--help{RESET}      Show this help message
+
+{BOLD}COMMANDS{RESET}
+  {YELLOW}install{RESET}     Set up git-tunnel on this machine
+              • prompts for a device name (stored in git config user.device)
+              • installs the prepare-commit-msg hook globally
+              • adds the git-tunnel shell function to your shell config
+
+{BOLD}EXAMPLES{RESET}
+  {DIM}# View the tunnel (compact, truncated messages){RESET}
+  git-tunnel
+
+  {DIM}# View the tunnel with full commit messages{RESET}
+  git-tunnel --all
+
+  {DIM}# First-time setup{RESET}
+  git-tunnel install
+""")
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == 'install':
+    args = sys.argv[1:]
+    if args and args[0] == 'install':
         install()
+    elif '--help' in args or '-h' in args:
+        help()
     else:
         from git_tunnel.tunnel import main as run
         run()
