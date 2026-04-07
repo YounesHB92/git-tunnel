@@ -1,5 +1,4 @@
 import sys
-import os
 import subprocess
 import shutil
 from pathlib import Path
@@ -67,26 +66,8 @@ def install():
     subprocess.run(['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)])
     ok(f"core.hooksPath set to {hooks_dir}")
 
-    # Shell function — write it directly into the user's shell config
-    shell = os.environ.get('SHELL', '')
-    if 'zsh' in shell:
-        rc_file = Path.home() / '.zshrc'
-    else:
-        rc_file = Path.home() / '.bashrc'
-
-    marker = '# git-tunnel shell function'
-    fn_block = f'\n{marker}\nfunction git-tunnel() {{ git-tunnel-run "$@"; }}\n'
-
-    rc_text = rc_file.read_text() if rc_file.exists() else ''
-    if marker in rc_text:
-        ok(f"Shell function already present in {rc_file}")
-    else:
-        with rc_file.open('a') as f:
-            f.write(fn_block)
-        ok(f"Shell function added to {rc_file}")
-
-    print(f"\n{BOLD}All done!{RESET} Restart your shell or run:\n")
-    print(f"  {CYAN}source {rc_file}{RESET}\n")
+    print(f"\n{BOLD}All done!{RESET} You're ready to go.\n"
+          f"  Run {CYAN}git-tunnel{RESET} inside any git repository.\n")
 
 
 
@@ -116,7 +97,6 @@ def help():
   {YELLOW}install{RESET}     Set up git-tunnel on this machine
               • prompts for a device name (stored in git config user.device)
               • installs the prepare-commit-msg hook globally
-              • adds the git-tunnel shell function to your shell config
 
 {BOLD}EXAMPLES{RESET}
   {DIM}# View the tunnel (compact, truncated messages){RESET}

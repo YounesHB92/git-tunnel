@@ -156,8 +156,24 @@ def render(commits, show_all=False):
     print(legend + "\n")
 
 
+def check_device():
+    try:
+        device = subprocess.run(
+            ['git', 'config', '--global', 'user.device'],
+            capture_output=True, text=True
+        ).stdout.strip()
+    except FileNotFoundError:
+        print(f"\n  ✗  git is not installed or not on PATH.\n"
+              f"     Install it from https://git-scm.com\n")
+        sys.exit(1)
+    if not device:
+        print(f"\n  {BOLD}First time?{RESET}  Run {BOLD}git-tunnel install{RESET} to set up your device.\n"
+              f"  Your commits won't be tagged until you do.\n")
+
+
 def main():
     show_all = '--all' in sys.argv
+    check_device()
     raw = run_git_log()
     commits = parse_commits(raw)
     if not commits:
