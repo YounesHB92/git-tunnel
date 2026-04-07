@@ -31,13 +31,18 @@ DEVICE_TAG   = re.compile(r'\[device:(.+?)\]', re.IGNORECASE)
 LEGACY_LABEL = 'pre git-tunnel'
 
 def run_git_log():
-    result = subprocess.run(
-        ['git', 'log', '--pretty=format:%h|%an|%ar|%B|||END|||',
-         '--exclude=refs/original/*', '--all'],
-        capture_output=True, text=True
-    )
+    try:
+        result = subprocess.run(
+            ['git', 'log', '--pretty=format:%h|%an|%ar|%B|||END|||',
+             '--exclude=refs/original/*', '--all'],
+            capture_output=True, text=True
+        )
+    except FileNotFoundError:
+        print(f"\n  ✗  git is not installed or not on PATH.\n"
+              f"     Install it from https://git-scm.com\n")
+        sys.exit(1)
     if result.returncode != 0:
-        print(f"\n  ✗  Not a git repository (or git not found).\n")
+        print(f"\n  ✗  Not a git repository. Run this inside a git project.\n")
         sys.exit(1)
     return result.stdout
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 def install():
     """
-    Interactive setup:
+    Interactive install:
       - Sets git config --global user.device
       - Installs the prepare-commit-msg hook
       - Sets git config --global core.hooksPath
@@ -22,7 +22,13 @@ def install():
     def info(t): print(f"  \033[96m→\033[0m {t}")
     def warn(t): print(f"  \033[93m⚠\033[0m  {t}")
 
-    print(f"\n{BOLD}git-tunnel setup{RESET}\n")
+    print(f"\n{BOLD}git-tunnel install{RESET}\n")
+
+    # ── git check ─────────────────────────────────────────────────────────────
+    if not shutil.which('git'):
+        print(f"  \033[91m✗\033[0m  git is not installed or not on PATH.\n"
+              f"     Install it from https://git-scm.com and re-run this command.\n")
+        sys.exit(1)
 
     # ── Device name ───────────────────────────────────────────────────────────
     current = subprocess.run(
@@ -119,7 +125,7 @@ def help():
   {DIM}# View the tunnel with full commit messages{RESET}
   git-tunnel --all
 
-  {DIM}# First-time setup{RESET}
+  {DIM}# First-time install{RESET}
   git-tunnel install
 """)
 
